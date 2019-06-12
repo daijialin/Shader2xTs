@@ -8,6 +8,7 @@ TS版 CocosCreator2.x Shader Component
 
 在原有的基础上添加了参数传递，每个效果单独一个脚本
 
+https://github.com/daijialin/Shader2xTs/tree/master/images/0.png
 
 
 
