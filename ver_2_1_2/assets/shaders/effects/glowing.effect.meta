@@ -1,0 +1,11 @@
+{
+  "ver": "1.0.15",
+  "uuid": "012a2de5-a484-47ae-bd88-a05d1339aa77",
+  "compiledShaders": [
+    {
+      "vert": "\n#define _IS_VERT_SHADER 1\n\nprecision mediump float;\nuniform mat4 cc_matViewProj;\nattribute vec3 a_position;\n#if USE_TEXTURE\n  attribute mediump vec2 a_uv0;\n  varying mediump vec2 v_uv0;\n#endif\nattribute lowp vec4 a_color; \nvarying lowp vec4 v_color;\n\n void main () {\n    vec4 pos = cc_matViewProj * vec4(a_position, 1);\n    #if USE_TEXTURE\n      v_uv0 = a_uv0;\n    #endif\n    v_color = a_color;\n    gl_Position = pos;\n}\n\n\n",
+      "frag": "\n#define _IS_FRAG_SHADER 1\n\nprecision mediump float;\nuniform lowp float time;\n\n#if USE_TEXTURE\n  uniform sampler2D texture;\n  varying mediump vec2 v_uv0;\n#endif\nvarying lowp vec4 v_color;\nuniform vec3 iResolution;\nconst float radius = 6.0;\nconst vec3 color = vec3(0.9, 0.9, 0.0);\n\nfloat coefficient()\n{\n  float v = mod(time, 3.0);\n  if(v > 1.5)\n    v = 3.0 - v;\n    return v;\n}\n\nvoid mainImage( out vec4 fragColor, in vec2 fragCoord )\n{\n  vec2 uv = fragCoord.xy;\n  vec2 unit = 1.0 / iResolution.xy;\n  vec4 texel = texture2D(texture, uv);\n  vec4 finalColor = vec4(0.0);\n  float density = 0.0;\n\n  if(texel.a >= 1.0)\n  {\n    finalColor = texel;\n  }\n  else\n  {\n    for(int i = 0; i < int(radius); ++i)\n    {\n      density += texture2D(texture, vec2(uv.x + unit.x * float(i), uv.y + unit.y * float(i))).a;\n      density += texture2D(texture, vec2(uv.x - unit.x * float(i), uv.y + unit.y * float(i))).a;\n      density += texture2D(texture, vec2(uv.x - unit.x * float(i), uv.y - unit.y * float(i))).a;\n      density += texture2D(texture, vec2(uv.x + unit.x * float(i), uv.y - unit.y * float(i))).a;\n    }\n    density = density / radius;\n    finalColor = vec4(color.rgb * density, density);\n    finalColor += vec4(texel.rgb * texel.a, texel.a);\n  }\n    fragColor = finalColor;\n}\n\nvoid main()\n{\n  mainImage(gl_FragColor, v_uv0.xy);\n}\n\n\n"
+    }
+  ],
+  "subMetas": {}
+}

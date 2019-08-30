@@ -1,0 +1,11 @@
+{
+  "ver": "1.0.15",
+  "uuid": "8b4cf878-d2a2-4ee5-a40e-a3568848aa48",
+  "compiledShaders": [
+    {
+      "vert": "\n#define _IS_VERT_SHADER 1\n\nprecision mediump float;\nuniform mat4 cc_matViewProj;\nattribute vec3 a_position;\n#if USE_TEXTURE\n  attribute mediump vec2 a_uv0;\n  varying mediump vec2 v_uv0;\n#endif\nattribute lowp vec4 a_color; \nvarying lowp vec4 v_color;\n\n void main () {\n    vec4 pos = cc_matViewProj * vec4(a_position, 1);\n    #if USE_TEXTURE\n      v_uv0 = a_uv0;\n    #endif\n    v_color = a_color;\n    gl_Position = pos;\n}\n\n\n",
+      "frag": "\n#define _IS_FRAG_SHADER 1\n\nprecision mediump float;\n#if USE_TEXTURE\n  uniform sampler2D texture;\n  varying mediump vec2 v_uv0;\n#endif\nvarying lowp vec4 v_color;\n#define repeats 5.\nuniform float num;\n\nvec4 draw(vec2 uv) {\n  return v_color * texture2D(texture,uv).rgba; \n}\nfloat grid(float var, float size) {\n  return floor(var*size)/size;\n}\nfloat rand(vec2 co){\n  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);\n}\nvoid main()\n{\n    vec4 blurred_image = vec4(0.);\n    for (float i = 0.; i < repeats; i++) { \n    vec2 q = vec2(cos(degrees((i/repeats)*360.)),sin(degrees((i/repeats)*360.))) * (rand(vec2(i,v_uv0.x+v_uv0.y))+num); \n    vec2 uv2 = v_uv0+(q*num);\n    blurred_image += draw(uv2)/2.;\n    q = vec2(cos(degrees((i/repeats)*360.)),sin(degrees((i/repeats)*360.))) * (rand(vec2(i+2.,v_uv0.x+v_uv0.y+24.))+num); \n    uv2 = v_uv0+(q*num);\n    blurred_image += draw(uv2)/2.;\n    }\n    blurred_image /= repeats;\n    gl_FragColor = vec4(blurred_image);\n}\n\n\n"
+    }
+  ],
+  "subMetas": {}
+}

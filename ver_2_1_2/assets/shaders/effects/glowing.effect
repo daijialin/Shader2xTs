@@ -1,0 +1,108 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+
+// Note: Current format version is experiment, the format may be changed.
+// The future format may not be compatible, you may need to update the script manually.
+
+// 注意：当前版本的格式是实验性的，之后还会进行修改。
+// 后续版本的格式不保证兼容当前格式，可能需要手动升级到最新版本。，
+%{
+  techniques: [
+    {
+      passes: [
+        {
+          vert: vs
+          frag: fs
+          cullMode: none
+          blend: true
+        }
+      ]
+      layer: 0
+    }
+  ]
+  properties: {
+    texture: {
+      type: sampler2D
+      value: null
+    }
+  }
+%}
+
+%% vs {
+
+precision mediump float;
+uniform mat4 cc_matViewProj;
+attribute vec3 a_position;
+#if USE_TEXTURE
+  attribute mediump vec2 a_uv0;
+  varying mediump vec2 v_uv0;
+#endif
+attribute lowp vec4 a_color; // 颜色;
+varying lowp vec4 v_color;
+
+ void main () {
+    vec4 pos = cc_matViewProj * vec4(a_position, 1);
+    #if USE_TEXTURE
+      v_uv0 = a_uv0;
+    #endif
+    v_color = a_color;
+    gl_Position = pos;
+}
+
+}
+
+%% fs {
+
+precision mediump float;
+uniform lowp float time;
+
+#if USE_TEXTURE
+  uniform sampler2D texture;
+  varying mediump vec2 v_uv0;
+#endif
+varying lowp vec4 v_color;
+uniform vec3 iResolution;
+const float radius = 6.0;
+const vec3 color = vec3(0.9, 0.9, 0.0);
+
+float coefficient()
+{
+  float v = mod(time, 3.0);
+  if(v > 1.5)
+    v = 3.0 - v;
+    return v;
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+  vec2 uv = fragCoord.xy;
+  vec2 unit = 1.0 / iResolution.xy;
+  vec4 texel = texture2D(texture, uv);
+  vec4 finalColor = vec4(0.0);
+  float density = 0.0;
+
+  if(texel.a >= 1.0)
+  {
+    finalColor = texel;
+  }
+  else
+  {
+    for(int i = 0; i < int(radius); ++i)
+    {
+      density += texture2D(texture, vec2(uv.x + unit.x * float(i), uv.y + unit.y * float(i))).a;
+      density += texture2D(texture, vec2(uv.x - unit.x * float(i), uv.y + unit.y * float(i))).a;
+      density += texture2D(texture, vec2(uv.x - unit.x * float(i), uv.y - unit.y * float(i))).a;
+      density += texture2D(texture, vec2(uv.x + unit.x * float(i), uv.y - unit.y * float(i))).a;
+    }
+    density = density / radius;
+    finalColor = vec4(color.rgb * density, density);
+    finalColor += vec4(texel.rgb * texel.a, texel.a);
+  }
+    fragColor = finalColor;
+}
+
+void main()
+{
+  mainImage(gl_FragColor, v_uv0.xy);
+}
+
+}

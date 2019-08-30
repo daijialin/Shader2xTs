@@ -1,0 +1,11 @@
+{
+  "ver": "1.0.15",
+  "uuid": "e263b50c-87d9-44d6-9880-741811844d4d",
+  "compiledShaders": [
+    {
+      "vert": "\n#define _IS_VERT_SHADER 1\n\nprecision mediump float;\nuniform mat4 cc_matViewProj;\nattribute vec3 a_position;\n#if USE_TEXTURE\n  attribute mediump vec2 a_uv0;\n  varying mediump vec2 v_uv0;\n#endif\nattribute lowp vec4 a_color; \nvarying lowp vec4 v_color;\n\n void main () {\n    vec4 pos = cc_matViewProj * vec4(a_position, 1);\n    #if USE_TEXTURE\n      v_uv0 = a_uv0;\n    #endif\n    v_color = a_color;\n    gl_Position = pos;\n}\n\n\n",
+      "frag": "\n#define _IS_FRAG_SHADER 1\n\nprecision mediump float;\n\n#if USE_TEXTURE\n  uniform sampler2D texture;\n  varying mediump vec2 v_uv0;\n#endif\nvarying lowp vec4 v_color;\nuniform vec3 iResolution;\nuniform float mosaicSize;\n\nvoid main(void)\n{\n  vec4 color;\n  vec2 xy = vec2(v_uv0.x * iResolution.x, v_uv0.y * iResolution.y);\n  vec2 xyMosaic = vec2(floor(xy.x / mosaicSize) * mosaicSize, floor(xy.y / mosaicSize) * mosaicSize);\n  vec2 xyFloor = vec2(floor(mod(xy.x, mosaicSize)), floor(mod(xy.y, mosaicSize)));\n  vec2 uvMosaic = vec2(xyMosaic.x / iResolution.x, xyMosaic.y / iResolution.y);\n  color = texture2D(texture, uvMosaic);\n  gl_FragColor = color; \n}\n\n\n"
+    }
+  ],
+  "subMetas": {}
+}

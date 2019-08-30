@@ -1,0 +1,11 @@
+{
+  "ver": "1.0.15",
+  "uuid": "43a112af-3704-4e2f-b2c0-94a5e51db406",
+  "compiledShaders": [
+    {
+      "vert": "\n#define _IS_VERT_SHADER 1\n\nprecision mediump float;\nuniform mat4 cc_matViewProj;\nattribute vec3 a_position;\n#if USE_TEXTURE\n  attribute mediump vec2 a_uv0;\n  varying mediump vec2 v_uv0;\n#endif\nattribute lowp vec4 a_color; \nvarying lowp vec4 v_color;\n\n void main () {\n    vec4 pos = cc_matViewProj * vec4(a_position, 1);\n    #if USE_TEXTURE\n      v_uv0 = a_uv0;\n    #endif\n    v_color = a_color;\n    gl_Position = pos;\n}\n\n\n",
+      "frag": "\n#define _IS_FRAG_SHADER 1\n\nprecision mediump float;\nuniform lowp vec4 color;\n\n#if USE_TEXTURE\n  uniform sampler2D texture;\n  varying mediump vec2 v_uv0;\n#endif\nvarying lowp vec4 v_color;\n\nvoid main()\n{\n    vec4 sum = vec4(0.0);\n    vec2 size = vec2(0.03,0.03);\n    sum += texture2D(texture, v_uv0 - 0.4 * size) * 0.05;\n    sum += texture2D(texture, v_uv0 - 0.3 * size) * 0.09;\n    sum += texture2D(texture, v_uv0 - 0.2 * size) * 0.12;\n    sum += texture2D(texture, v_uv0 - 0.1 * size) * 0.15;\n    sum += texture2D(texture, v_uv0             ) * 0.16;\n    sum += texture2D(texture, v_uv0 + 0.1 * size) * 0.15;\n    sum += texture2D(texture, v_uv0 + 0.2 * size) * 0.12;\n    sum += texture2D(texture, v_uv0 + 0.3 * size) * 0.09;\n    sum += texture2D(texture, v_uv0 + 0.4 * size) * 0.05;\n        \n    vec4 vectemp = vec4(0,0,0,0);\n    vec4 substract = vec4(0,0,0,0);\n    vectemp = (sum - substract) * v_color;\n    \n    float alpha = texture2D(texture, v_uv0).a;\n    if(alpha < 0.05) { gl_FragColor = vec4(0 , 0 , 0 , 0); }\n    else { gl_FragColor = vectemp; }     \n}\n\n\n"
+    }
+  ],
+  "subMetas": {}
+}
