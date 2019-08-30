@@ -1,4 +1,7 @@
 # Shader2xTs
+ver_2_0_x  cocos版本2.0.8
+ver_2_1_2  cocos版本2.1.2
+
 TS版 CocosCreator2.x Shader Component 
 参考了JS版：https://github.com/colinsusie/creator_2_0_material_demo 
 
